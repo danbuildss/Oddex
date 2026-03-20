@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { usePrivy } from "@privy-io/react-auth"
 import { Panel } from "./panel"
 
 interface AlertPrefs {
@@ -13,6 +14,7 @@ interface AlertPrefs {
 }
 
 export function AlertsSetup() {
+  const { user, authenticated } = usePrivy()
   const [prefs, setPrefs] = useState<AlertPrefs>({
     telegramChatId: "",
     minScore: 70,
@@ -22,11 +24,33 @@ export function AlertsSetup() {
     fakeSpikeWarnings: false,
   })
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState("")
 
-  function handleSave() {
-    // In production: POST to /api/alerts/prefs with wallet auth
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+  async function handleSave() {
+    setError("")
+    const wallet = user?.wallet?.address
+    if (!wallet) {
+      setError("Connect your wallet first to save alert preferences.")
+      return
+    }
+    try {
+      const res = await fetch("/api/alerts/prefs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet,
+          telegram_chat_id: prefs.telegramChatId || null,
+          min_score: prefs.minScore,
+          crypto_alerts: prefs.cryptoAlerts,
+          football_alerts: prefs.footballAlerts,
+        }),
+      })
+      if (!res.ok) throw new Error("Failed to save")
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch {
+      setError("Failed to save preferences. Try again.")
+    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -181,6 +205,18 @@ export function AlertsSetup() {
           </div>
         </div>
       </Panel>
+
+      {error && (
+        <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "10px", color: "#ff3b5c", margin: 0 }}>
+          ⚠ {error}
+        </p>
+      )}
+
+      {!authenticated && (
+        <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "10px", color: "#555", margin: 0 }}>
+          // Connect wallet via sidebar to save preferences
+        </p>
+      )}
 
       <button
         onClick={handleSave}
