@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 
 import "./globals.css"
 import { ClientProviders } from "@/components/client-providers"
+import { Sidebar } from "@/components/oddex/sidebar"
+import { StatusBar } from "@/components/oddex/status-bar"
 
 export const metadata: Metadata = {
   title: "Oddex — Prediction Market Intelligence Terminal",
@@ -24,7 +26,23 @@ export default function RootLayout({
         />
       </head>
       <body style={{ background: "#000", color: "#e0e0e0" }}>
-        <ClientProviders>{children}</ClientProviders>
+        {/* ClientProviders wraps Privy context + Toaster */}
+        <ClientProviders>
+          {/* Sidebar and StatusBar are inside Privy context so AuthButton works */}
+          <Sidebar />
+          <main
+            style={{
+              marginLeft: "200px",
+              marginBottom: "28px",
+              minHeight: "calc(100vh - 28px)",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            {children}
+          </main>
+          <StatusBar />
+        </ClientProviders>
       </body>
     </html>
   )

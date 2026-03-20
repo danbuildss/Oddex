@@ -1,31 +1,14 @@
 "use client"
 
-import dynamic from "next/dynamic"
+import { PrivyProvider } from "@/components/privy-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { Sidebar } from "@/components/oddex/sidebar"
-import { StatusBar } from "@/components/oddex/status-bar"
 
-const PrivyProvider = dynamic(
-  () => import("@/components/privy-provider").then((m) => m.PrivyProvider),
-  { ssr: false }
-)
-
+// PrivyProvider is a "use client" component — it renders safely on server
+// with a valid app ID, only browser APIs initialize on client.
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
     <PrivyProvider>
-      <Sidebar />
-      <main
-        style={{
-          marginLeft: "200px",
-          marginBottom: "28px",
-          minHeight: "calc(100vh - 28px)",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        {children}
-      </main>
-      <StatusBar />
+      {children}
       <Toaster position="bottom-right" />
     </PrivyProvider>
   )
