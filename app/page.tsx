@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
   const [topEvents, cryptoEvents, footballEvents] = await Promise.all([
-    getTopEvents(50),
-    getCryptoEvents(20),
-    getFootballEvents(20),
+    getTopEvents(50).catch(() => []),
+    getCryptoEvents(20).catch(() => []),
+    getFootballEvents(20).catch(() => []),
   ])
 
   const allScored = scoreEvents(topEvents)

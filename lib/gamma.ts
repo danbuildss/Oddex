@@ -84,7 +84,8 @@ export async function getEvents(params: {
   })
 
   if (!res.ok) {
-    throw new Error(`Gamma API error: ${res.status} ${res.statusText}`)
+    console.error(`Gamma API error: ${res.status} ${res.statusText}`)
+    return []
   }
 
   return res.json()
